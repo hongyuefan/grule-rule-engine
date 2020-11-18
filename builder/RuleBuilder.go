@@ -88,8 +88,11 @@ func (builder *RuleBuilder) BuildRuleFromResource(name, version string, resource
 	// Immediately parse the loaded resource
 	is := antlr.NewInputStream(string(data))
 	fmt.Println("NewInputStream:",time.Since(startTime).Nanoseconds())
+
+	startTime = time.Now()
 	lexer := parser.Newgrulev3Lexer(is)
 	fmt.Println("Newgrulev3Lexer:",time.Since(startTime).Nanoseconds())
+	startTime = time.Now()
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	fmt.Println("NewCommonTokenStream:",time.Since(startTime).Nanoseconds())
 
@@ -98,6 +101,7 @@ func (builder *RuleBuilder) BuildRuleFromResource(name, version string, resource
 		parseError = e
 	}
 
+	startTime = time.Now()
 	kb := builder.KnowledgeLibrary.GetKnowledgeBase(name, version)
 	if kb == nil {
 		return fmt.Errorf("KnowledgeBase %s:%s is not in this library", name, version)
@@ -106,9 +110,15 @@ func (builder *RuleBuilder) BuildRuleFromResource(name, version string, resource
 
 	listener := antlr2.NewGruleV3ParserListener(kb, errCall)
 
+	startTime = time.Now()
 	psr := parser.Newgrulev3Parser(stream)
+	fmt.Println("parser.Newgrulev3Parser:",time.Since(startTime).Nanoseconds())
+
 	psr.BuildParseTrees = true
+
+	startTime = time.Now()
 	antlr.ParseTreeWalkerDefault.Walk(listener, psr.Grl())
+	fmt.Println("parser.Newgrulev3Parser:",time.Since(startTime).Nanoseconds())
 
 	grl := listener.Grl
 	for _, ruleEntry := range grl.RuleEntries {
