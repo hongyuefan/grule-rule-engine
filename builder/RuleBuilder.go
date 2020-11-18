@@ -87,8 +87,11 @@ func (builder *RuleBuilder) BuildRuleFromResource(name, version string, resource
 
 	// Immediately parse the loaded resource
 	is := antlr.NewInputStream(string(data))
+	fmt.Println("NewInputStream:",time.Since(startTime).Nanoseconds())
 	lexer := parser.Newgrulev3Lexer(is)
+	fmt.Println("Newgrulev3Lexer:",time.Since(startTime).Nanoseconds())
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	fmt.Println("NewCommonTokenStream:",time.Since(startTime).Nanoseconds())
 
 	var parseError error
 	errCall := func(e error) {
@@ -99,6 +102,7 @@ func (builder *RuleBuilder) BuildRuleFromResource(name, version string, resource
 	if kb == nil {
 		return fmt.Errorf("KnowledgeBase %s:%s is not in this library", name, version)
 	}
+	fmt.Println("KnowledgeLibrary:",time.Since(startTime).Nanoseconds())
 
 	listener := antlr2.NewGruleV3ParserListener(kb, errCall)
 
